@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İşyeri Hekimliği Programı</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+</head>
+<body>
+    <!-- Şifre Ekranı -->
+    <div id="passwordScreen" class="modal">
+        <div class="modal-content">
+            <h2>Programa Giriş</h2>
+            <input type="password" id="passwordInput" placeholder="Şifre">
+            <button id="loginButton">Giriş Yap</button>
+            <p id="passwordError" class="error-message"></p>
+        </div>
+    </div>
 
+    <!-- Ana Ekran -->
+    <div id="mainScreen" style="display: none;">
+        <!-- Üst Menü -->
+        <div class="top-menu">
+            <button id="logoutButton" class="logout-btn">Çıkış</button>
+        </div>
+
+        <!-- Sol Menü -->
+        <div class="sidebar">
+            <div class="menu-section">
+                <button id="monthlyWorksBtn" class="menu-btn">Aylık İşlerim ▼</button>
+                <div id="monthlyWorksMenu" class="submenu">
+                    <!-- Aylar buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="workplaces-header">
+                    <span>İş Yerlerim</span>
+                    <div class="workplace-actions">
+                        <button id="addWorkplaceBtn" class="small-btn">+</button>
+                        <button id="editWorkplaceBtn" class="small-btn">✎</button>
+                        <button id="deleteWorkplaceBtn" class="small-btn">-</button>
+                    </div>
+                </div>
+                <div id="workplacesList" class="submenu">
+                    <!-- İşyerleri buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+
+            <button id="settingsBtn" class="menu-btn settings-btn">Ayarla</button>
+        </div>
+
+        <!-- Ana İçerik -->
+        <div class="main-content">
+            <div id="workplaceContent" style="display: none;">
+                <div class="workplace-header">
+                    <button id="backButton" class="back-btn">← Geri</button>
+                    <h2 id="workplaceTitle"></h2>
+                    <div class="workplace-actions">
+                        <button id="importExcelBtn">Excel'den Al</button>
+                        <button id="exportExcelBtn">Excel'e Ver</button>
+                        <button id="backupBtn">Yedek Al</button>
+                        <button id="restoreBtn">Yedekten Dön</button>
+                    </div>
+                </div>
+                <div class="person-actions">
+                    <button id="addPersonBtn">Kişi Ekle</button>
+                </div>
+                <table id="personsTable">
+                    <thead>
+                        <tr>
+                            <th>Sıra No</th>
+                            <th>TC Kimlik No</th>
+                            <th>İsim Soyisim</th>
+                            <th>Mevcut Muayene Tarihi</th>
+                            <th>Sonraki Muayene Tarihi</th>
+                            <th>Ek-2</th>
+                            <th>Ek-2 Yükle</th>
+                            <th>Ek-2 Göster</th>
+                            <th>Düzenle</th>
+                            <th>Sil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Kişi listesi buraya dinamik olarak eklenecek -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="welcomeContent">
+                <h1>İşyeri Hekimliği Programı</h1>
+                <p>Sol menüden işyeri seçerek işlem yapmaya başlayabilirsiniz.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ayarlar Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>Doktor Bilgileri</h2>
+            <form id="doctorInfoForm">
+                <label for="doctorName">Ad Soyad:</label>
+                <input type="text" id="doctorName" required>
+                
+                <label for="diplomaNo">Diploma No:</label>
+                <input type="text" id="diplomaNo" required>
+                
+                <label for="diplomaDate">Diploma Tarihi:</label>
+                <input type="text" id="diplomaDate" placeholder="gg.aa.yyyy" required>
+                
+                <label for="certificateNo">İşyeri Hekimliği Belge No:</label>
+                <input type="text" id="certificateNo" required>
+                
+                <button type="submit">Kaydet</button>
+                <button type="button" id="closeSettingsBtn">Kapat</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kişi Ekle/Düzenle Modal -->
+    <div id="personModal" class="modal">
+        <div class="modal-content">
+            <h2 id="personModalTitle">Kişi Ekle</h2>
+            <form id="personForm">
+                <label for="personTC">TC Kimlik No:</label>
+                <input type="text" id="personTC" required>
+                
+                <label for="personName">İsim Soyisim:</label>
+                <input type="text" id="personName" required>
+                
+                <button type="submit">Kaydet</button>
+                <button type="button" id="closePersonModalBtn">Kapat</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ek-2 Yükle Modal -->
+    <div id="uploadEk2Modal" class="modal">
+        <div class="modal-content">
+            <h2>Ek-2 Yükle</h2>
+            <input type="file" id="ek2FileInput" accept=".docx">
+            <button id="uploadEk2Btn">Yükle</button>
+            <button id="closeUploadEk2Btn">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Ek-2 Göster Modal -->
+    <div id="showEk2Modal" class="modal">
+        <div class="modal-content">
+            <h2>Ek-2 Belgeleri</h2>
+            <div id="ek2List">
+                <!-- Ek-2 listesi buraya eklenecek -->
+            </div>
+            <button id="closeShowEk2Btn">Kapat</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
